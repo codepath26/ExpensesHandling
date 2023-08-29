@@ -8,6 +8,8 @@ const addExpense = document.getElementById("add-items");
 const feature1 = document.getElementById("leaderborditem");
 const isPremiumuser = document.getElementById("premiumUser");
 const items = document.getElementById("items");
+const download = document.getElementById('download')
+
 
 // evente Listner
 paybutton.addEventListener("click", payment);
@@ -15,6 +17,7 @@ addExpense.addEventListener("submit", addExpenses);
 showLeaderBoard.addEventListener("click", leaderBoard);
 items.addEventListener("click", modified);
 window.addEventListener("DOMContentLoaded", fetchData);
+download.addEventListener('click' ,  downloadExpenses)
 
 // DomContent Loaded
 
@@ -31,7 +34,7 @@ async function fetchData() {
     let response = await axios.get("http://localhost:9000/expenseDetails", {
       headers: { Authorization: token },
     });
-    console.log(response.data)
+
     response.data.forEach((obj) => {
       DisplayData(obj);
     });
@@ -83,7 +86,7 @@ async function modified(e) {
   if (e.target.classList.contains("delete")) {
     let li = e.target.parentElement;
     const id = li.querySelector("#userid").value;
-    console.log(id);
+  
     try {
       await axios.delete(`http://localhost:9000/expenseDetails/${id}`);
       items.removeChild(li);
@@ -159,7 +162,7 @@ async function payment(e) {
     rzp1.open();
     e.preventDefault();
     rzp1.on("payment.failed", function (response) {
-      console.log(response);
+ 
       alert("something went wrong");
     });
   } catch (err) {
@@ -174,10 +177,37 @@ async function leaderBoard() {
     "http://localhost:9000/premium/leaderBoard"
   );
 
-  console.log(response);
+ 
   feature1.style.display = "block";
   feature1.innerHTML += `<h2><b>Leader Board<b>`
   response.data.forEach((obj) => {
     feature1.innerHTML += `<li class='list-group-item mt-2'> Name :- ${obj.name} and TotalCost:- ${obj.totalExpenses ? obj.totalExpenses : 0} </li>`;
   });
+}
+
+
+
+
+async function downloadExpenses (e){
+  try{
+
+    let token = localStorage.getItem("token");
+    let response = await axios.get('http://localhost:9000/download',{
+      headers: { Authorization: token}
+    })
+  if(response.status === 200){
+    const a = document.createElement('a');
+    a.href = response.data.fileUrl;
+    a.download = 'myexpense.csv'
+    a.click();
+  }else{
+    throw new  Error (response.data.message)
+  }
+
+
+
+  }catch(err){
+    console.log(err);
+  }
+  
 }

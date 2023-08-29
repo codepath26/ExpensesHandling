@@ -2,8 +2,61 @@ require('dotenv').config();
 const Expenses = require("../models/appo-Details");
 const User = require("../models/user");
 const sequelize = require('../utils/database');
+const AWS = require('aws-sdk')
 
 
+function uploadToS3(data , filename){
+ 
+ const BUCKET_NAME= process.env.BUCKET_NAME
+ const IAM_USER_KEY= process.env.IAM_USER_KEY
+ const IAM_USER_SECRET= process.env.IAM_USER_SECRET
+
+ let s3bucket = new AWS.S3({
+  accessKeyId : IAM_USER_KEY,
+  secretAccessKey : IAM_USER_SECRET,
+ })
+
+  var params = {
+     Bucket : BUCKET_NAME,
+     Key : filename,
+     Body : data ,
+     ACL: 'public-read',
+  }
+
+
+  return new Promise ((resolve, reject)=>{
+    s3bucket.upload(params , (err,s3response)=>{
+      if(err){
+        console.log('somiething went wrong' , err);
+        reject(err);
+        
+      }else{
+        console.log('success' ,s3response);
+        resolve(s3response.Location) ;
+      }
+      
+  })
+});
+  
+}
+
+
+
+
+
+exports.downloadExpenses = async (req ,res)=>{
+  try{
+    const user = await User.findByPk(req.user.userId)
+    const expenses = await user.getExpenses();
+    const stringifyExpenses = JSON.stringify(expenses);
+    const filename = `Expense${user.id}/${new Date()}.txt`;
+     const fileUrl = await uploadToS3(stringifyExpenses, filename);
+     console.log(fileUrl)
+    res.status(200).json({fileUrl , success : true});
+  }catch(err){
+    res.status(500).json({fileUrl : '' , success : false});
+  }
+}
 
 
 
@@ -98,3 +151,4 @@ exports.getDetailsbyId = async (req, res) => {
     res.status(500).json({ err: "Error getting data" });
   }
 };
+
