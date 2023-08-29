@@ -2,16 +2,36 @@ window.addEventListener("DOMContentLoaded", fetchData);
 const btn1 = document.getElementById('btn1')
 const btn2 = document.getElementById('btn2')
 const btn3 = document.getElementById('btn3')
+const form = document.getElementById('rowperpage')
+const row = document.getElementById('row');
+form.addEventListener('submit', setrow)
 
+
+
+async function setrow(e){
+  e.preventDefault();
+  localStorage.setItem('row',row.value)
+  const rowpara = row.value;
+  try{
+    const page =1;
+    let res = await axios.get(`http://localhost:9000/products?page=${page}&row=${rowpara}`)
+    const {products , ...pagedata} = res.data;
+    listproduct(res.data.products);
+    showpagination(pagedata);
+  }catch(err){
+    console.log(err);
+
+  }
+}
 
 
 
 async function fetchData() {
   const page =1;
   try{
-   console.log("here")
-
-    let res = await axios.get(`http://localhost:9000/products?page=${page}`)
+    const rowpara = localStorage.getItem('row')
+  
+    let res = await axios.get(`http://localhost:9000/products?page=${page}&row=${rowpara}`)
     const {products , ...pagedata} = res.data;
     listproduct(res.data.products);
     showpagination(pagedata);
@@ -64,8 +84,9 @@ function showpagination ({
 
 
 async function getProducts(page){
-  console.log(page);
-  let res = await axios.get(`http://localhost:9000/products?page=${page}`)
+  const rowpara = localStorage.getItem('row');
+  console.log(`ropara==>${rowpara}`)
+  let res = await axios.get(`http://localhost:9000/products?page=${page}&row=${rowpara}`)
   const {products , ...pagedata} = res.data;
   listproduct(res.data.products);
   showpagination(pagedata);

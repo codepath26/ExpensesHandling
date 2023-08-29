@@ -5,7 +5,8 @@ const DowHistory = require('./download_history');
 const sequelize = require('../utils/database');
 const AWS = require('aws-sdk');
 const Expense = require('../models/appo-Details');
-const Items_PER_PAGE = 10
+// let Items_PER_PAGE = 10
+
 
 function uploadToS3(data , filename){
  
@@ -159,7 +160,10 @@ exports.getDetailsbyId = async (req, res) => {
 
 exports.getProducts = async ( req,res)=>{
   try{
-    console.log(req.query)
+  
+   let Items_PER_PAGE = +req.query.row
+   console.log(typeof(Items_PER_PAGE))
+
     const page = +req.query.page || 1;
     let totalItems ;
     let total = await Expense.count()
@@ -169,7 +173,7 @@ exports.getProducts = async ( req,res)=>{
       offset :(page -1 ) * Items_PER_PAGE ,
       limit : Items_PER_PAGE,
     })
- 
+  //  console.log(products)
     res.status(200).json({
       products : products ,
       currentPage : page,
