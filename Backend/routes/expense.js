@@ -15,6 +15,8 @@ router.get('/premium/getPremiumMemberShip',premiumCon.getPremium)
 router.get('/premium/leaderBoard',premiumCon.getfeature)
 router.post('/premium/updatetransactionstatus',premiumCon.updateTransactionStatus)
 
+router.get('/download' , auth.authenticateUser,useController.downloadExpenses )
+
 
 
 
