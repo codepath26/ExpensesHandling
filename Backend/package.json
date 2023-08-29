@@ -5,11 +5,13 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app"
+    "start": "cross-env NODE_ENV=production EMAIL_API_KEY=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 JSONWEB_SECRET_KEY=c1b0eaf6d63fa84fcda4d5a5f81fe9c4b1be7f759c09a21e9a499f9078887aaf  RAZORPAY_KEY_ID=rzp_test_S0DCpDzZpE3Ico  RAZORPAY_KEY_SECRET=F6MBLOT5BoC3b3hluLZYhOE3  BUCKET_NAME=expenseapp1234 IAM_USER_KEY=AKIAQASTLIYBFWR5JMGZ IAM_USER_SECRET=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 node app",
+    "start:dev": "nodemon app"
   },
   "author": "codepath",
   "license": "ISC",
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "nodemon": "^3.0.1"
   },
   "dependencies": {
@@ -17,13 +19,16 @@
     "aws-sdk": "^2.1446.0",
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
+    "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "express-flash": "^0.0.2",
     "express-session": "^1.17.3",
+    "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.1",
+    "morgan": "^1.10.0",
     "mysql2": "^3.6.0",
     "passport": "^0.6.0",
     "passport-local": "^1.0.0",
