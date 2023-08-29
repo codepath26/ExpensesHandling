@@ -9,7 +9,7 @@ const bcrypt = require("bcrypt");
 const generateAccessToken = (id, email) => {
   const secretKey =process.env.JSONWEB_SECRET_KEY;
   const payload = { userId: id, email };
-  return jwt.sign(payload, secretKey, { expiresIn: "4h" });
+  return jwt.sign(payload, secretKey, { expiresIn: "24h" });
 };
 
 // singUp process
