@@ -1,9 +1,11 @@
 require('dotenv').config(); 
 const Expenses = require("../models/appo-Details");
 const User = require("../models/user");
+const DowHistory = require('./download_history');
 const sequelize = require('../utils/database');
-const AWS = require('aws-sdk')
-
+const AWS = require('aws-sdk');
+const Expense = require('../models/appo-Details');
+const Items_PER_PAGE = 10
 
 function uploadToS3(data , filename){
  
@@ -31,7 +33,7 @@ function uploadToS3(data , filename){
         reject(err);
         
       }else{
-        console.log('success' ,s3response);
+        // console.log('success' ,s3response);
         resolve(s3response.Location) ;
       }
       
@@ -51,7 +53,8 @@ exports.downloadExpenses = async (req ,res)=>{
     const stringifyExpenses = JSON.stringify(expenses);
     const filename = `Expense${user.id}/${new Date()}.txt`;
      const fileUrl = await uploadToS3(stringifyExpenses, filename);
-     console.log(fileUrl)
+    //  console.log(fileUrl)
+       DowHistory.History(fileUrl , user.id)
     res.status(200).json({fileUrl , success : true});
   }catch(err){
     res.status(500).json({fileUrl : '' , success : false});
@@ -79,11 +82,11 @@ exports.postDetail = async (req, res, next) => {
     const id = req.user.userId
     const user = await User.findByPk(id);
     const { amount, description, category } = req.body;
-    console.log(`this is the adding amount ==> ${amount}`)
-    console.log(`this is TotalExpenses amount ==> ${user.totalExpenses}`)
+    // console.log(`this is the adding amount ==> ${amount}`)
+    // console.log(`this is TotalExpenses amount ==> ${user.totalExpenses}`)
     
      let total = user.totalExpenses + parseInt(amount);
-     console.log(`this is the total wnated to add ==>${total}`);
+    //  console.log(`this is the total wnated to add ==>${total}`);
      await  user.update({totalExpenses : total },{
         transaction : t
       });
@@ -152,3 +155,31 @@ exports.getDetailsbyId = async (req, res) => {
   }
 };
 
+
+
+exports.getProducts = async ( req,res)=>{
+  try{
+    console.log(req.query)
+    const page = +req.query.page || 1;
+    let totalItems ;
+    let total = await Expense.count()
+    totalItems = total;
+    console.log(`page ==> ${page}`)
+    const products = await Expense.findAll({
+      offset :(page -1 ) * Items_PER_PAGE ,
+      limit : Items_PER_PAGE,
+    })
+ 
+    res.status(200).json({
+      products : products ,
+      currentPage : page,
+      hasNextpage : page< Math.ceil(totalItems/ Items_PER_PAGE) ,
+      nextPage : page + 1,
+      hasPreviousPage :  page > 1,
+      PreviousPage : page - 1,
+      lastPage : Math.ceil(totalItems/ Items_PER_PAGE),
+    });
+  }catch(err){
+    res.status(500).json(err);
+  }
+}

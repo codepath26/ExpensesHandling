@@ -23,6 +23,7 @@ download.addEventListener('click' ,  downloadExpenses)
 
 async function fetchData() {
   try {
+  
     let token = localStorage.getItem("token");
     let ispremium = localStorage.getItem("ispremium");
     if (ispremium) {
@@ -211,3 +212,7 @@ async function downloadExpenses (e){
   }
   
 }
+
+
+
+
